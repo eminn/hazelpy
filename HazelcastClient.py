@@ -4,7 +4,7 @@ class HazelcastClient:
 	def __init__(self,host='localhost',port=5701,username='dev',password='dev-pass'):
 		self.__connection = Connection(host, port)
 		self.authenticate(username, password)
-		pass
+
 	
 	def getMap(self,name):
 		return MapClientProxy(name,self.__connection)

@@ -39,7 +39,9 @@ class Connection:
             command_str += size + self.newline
             command_str += data
             
+            
             print "pack binary data"
+        print command_str
         self.send_command(command_str)
 
         

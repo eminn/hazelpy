@@ -16,9 +16,11 @@ class OutputStream:
 		self.writeBoolean(isnull)
 		if isnull:
 			 return
-		self.writeInt(len(value))
-		bytes = value.encode("utf8")
-		self.buf.extend(pack("!%ds" %  len(bytes), bytes))
+		bytes = unicode (value,"utf-8")
+		bytes = bytes.encode("utf-8")
+		self.writeInt(len(bytes))
+		self.writeShort(len(bytes))
+		self.buf.extend(bytes)
 	def writeBoolean(self, value):
 		self.buf.extend(pack(self.FORMAT_STRING_BOOLEAN,value))
 	def writeLong(self,value):

@@ -11,7 +11,7 @@ class AbstractSerializer:
         if object == None:
             return
         ts = self.ds if self.ds.isSuitable(object) else self.cs
-        #self.output.writeByte(ts.getTypeId())
+        self.output.writeByte(ts.getTypeId())
         ts.write(self.output,object)
         return self.output.buf
 
