@@ -1,1 +1,1 @@
-#hazelcast-py is a native python client for hazelcast
+hazelcast-py is a native python client for hazelcast
