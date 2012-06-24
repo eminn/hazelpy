@@ -2,17 +2,15 @@ import socket
 from DefaultSerializer import DefaultSerializer
 from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
-
 class Connection:
     buffersize = 16 << 10
-    newline = '\r\n'
-    protocol = 'P01' + newline
-    serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
+    protocol = 'P01 \r\n'
     def __init__(self, host, port):
         self.__address = (host, port)
         self.__socket = socket.socket()
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self.__socket.settimeout(3.0)
+        self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
         try:
             self.__socket.connect(self.__address)
             self.__socket.sendall(self.protocol)
@@ -22,36 +20,23 @@ class Connection:
 
     def send_command(self, command):
         self.__socket.sendall(command)
-        print command
-        self.read_response()
-        pass
-
-    def pack_command(self, command, flag=0, argsCount=0, binary=None, *c_args):
-        command_str = command + ' ' + str(flag) + ' ' + ' '.join(c_args) + ' #' + str(argsCount) + self.newline
-        if argsCount != 0 and binary != None:
-            size = ""
-            data = bytearray()
-            for item in binary:
-                bytes = self.serializer.toByte(item)
-                size += str(len(bytes)) + " " 
-                data.extend(bytes)
-                print list(data)
-            command_str += size + self.newline
-            command_str += data
-            
-            
-            print "pack binary data"
-        print command_str
-        self.send_command(command_str)
+        return self.read_response()
 
         
     def read_response(self):
         try:
-            buffer = self.__socket.recv(4096)
-            print buffer
+            buff = self.__socket.recv(4096)
+            response = [x for x in buff.rsplit("\r\n") if x]
+            if len(response)>1:
+                size = response[1]
+                chunk= response[2]
+                data = chunk[0:int(size)]
+                return self.__serializer.toObject(data)
+            else:
+                return response
+        # response = filter(None,buff.rsplit("\r\n"))
         except socket.error, socket.timeout:
                 print "error while reading from socket !!!"
-        pass
 
 
     def __str__(self):

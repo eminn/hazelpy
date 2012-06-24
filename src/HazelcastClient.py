@@ -9,4 +9,5 @@ class HazelcastClient:
 	def getMap(self,name):
 		return MapClientProxy(name,self.__connection)
 	def authenticate(self,username,password):
-		self.__connection.pack_command("AUTH",1,0,None,username,password)
+		command = "AUTH " + "0 " + username + " " + password + " \r\n"
+		self.__connection.send_command(command)

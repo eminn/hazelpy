@@ -6,7 +6,9 @@ class MapClientProxy:
     def put(self, key, value):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
-        return self.__proxyHelper.doOp("MPUT",self.__name,key,value)
-
-      
-    pass
+        return self.__proxyHelper.doOp("MPUT",0,2,(key,value),self.__name)
+    def get(self,key):
+        self.__proxyHelper.check(key)
+        return self.__proxyHelper.doOp("MGET",0,1,key,self.__name)
+    
+    

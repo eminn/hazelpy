@@ -5,5 +5,5 @@ class DataSerializable:
     def writeData(self,output):
         raise NotImplementedError
     @abstractmethod
-    def readData(self,input):
+    def readData(self,inputStream):
         raise NotImplementedError
