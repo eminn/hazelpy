@@ -10,5 +10,6 @@ class MapClientProxy:
     def get(self,key):
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MGET",0,1,key,self.__name)
-    
+    def putAll(self,entries):
+        return self.__proxyHelper.doOp("MPUTALL",0,2*len(entries),entries,self.__name)    
     

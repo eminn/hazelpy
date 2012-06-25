@@ -2,6 +2,7 @@ from DefaultSerializer import DefaultSerializer
 from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
 import collections
+import types
 
 class ProxyHelper:
     def __init__(self, name, connection):
@@ -19,18 +20,29 @@ class ProxyHelper:
         if argsCount != 0 and binary != None:
             size = ""
             data = bytearray()
-            if isinstance(binary,collections.Iterable):
+            if isinstance(binary,(types.ListType,types.TupleType)):
                 for item in binary:
                     byte = self.__serializer.toByte(item)
                     size +=str(len(byte)) + " " 
                     data.extend(byte)
                     print list(data)
+            elif isinstance(binary,types.DictionaryType):
+                for k in binary.keys():
+                    key = list(self.__serializer.toByte(k))
+                    print "key->",list(key)
+                    value = list(self.__serializer.toByte(binary[k]))
+                    print "value->",list(value)
+                    size +=str(len(key)) + " " + str(len(value)) + " "
+                    data.extend(key)
+                    data.extend(value)
+                    print list(data) 
             else:
                 byte = self.__serializer.toByte(binary)
                 size += str(len(byte)) + " "
                 data.extend(byte)
                 print list(data)
             command_str += size + self.__newline
+            print list(data)
             command_str += data
         print command_str
         return self.__connection.send_command(command_str)
