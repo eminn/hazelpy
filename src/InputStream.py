@@ -12,7 +12,9 @@ class InputStream:
     def flush(self):
         del self.buf[:]
     def readBoolean(self):
-        print unpack(self.FORMAT_STRING_BOOLEAN , self.buf)
+        boolean = unpack(self.FORMAT_STRING_BOOLEAN , str(self.buf[:1]))
+        self.buf = self.buf[1:]
+        return boolean[0] 
     def readInt(self):
         try:
             integer = unpack(self.FORMAT_STRING_INTEGER , str(self.buf[:4]))
@@ -24,3 +26,14 @@ class InputStream:
         byte = unpack(self.FORMAT_STRING_BYTE, str(self.buf[:1]))
         self.buf = self.buf[1:]
         return byte[0]
+    def readUTF(self):
+        isNull = self.readBoolean()
+        if isNull : return None
+        length = self.readInt()
+        utflen = self.readShort()
+        utfstr = (self.buf[:utflen]).decode('utf-8')
+        return utfstr
+    def readShort(self):
+        short = unpack(self.FORMAT_STRING_SHORT , str(self.buf[:2]))
+        self.buf = self.buf[2:]
+        return short[0]

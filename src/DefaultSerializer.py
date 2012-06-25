@@ -60,8 +60,7 @@ class StringSerializer(TypeSerializer):
         return SERIALIZER_TYPE_STRING
     def read(self,inputStream):
         print "read ss"
-        #return readed string
-        pass
+        return inputStream.readUTF()
     def write(self, output, obj):
         print "serializing with ss"
         output.writeUTF(obj)
@@ -73,8 +72,7 @@ class IntegerSerializer(TypeSerializer):
     def getTypeId(self):
         return SERIALIZER_TYPE_INTEGER
     def read(self,inputStream):
-        data = inputStream.readInt()
-        return data
+        return inputStream.readInt()
     def write(self, output, obj):
         print "serializing with is"
         output.writeInt(obj)
