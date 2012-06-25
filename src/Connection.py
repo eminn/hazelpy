@@ -9,7 +9,7 @@ class Connection:
         self.__address = (host, port)
         self.__socket = socket.socket()
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.__socket.settimeout(100.0)
+        self.__socket.settimeout(3.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
         try:
             self.__socket.connect(self.__address)
@@ -22,30 +22,46 @@ class Connection:
         self.__socket.sendall(command)
         return self.read_response()
 
-        
+    def __readLine(self):
+        line = ""
+        while True:
+            c = self.__socket.recv(1)
+            line += c
+            if c == '\r':
+                c2 = self.__socket.recv(1)
+                if c2 == '\n':
+                    break
+        return line
+    def __readObject(self,size):
+        data = ""
+        while len (data) < size:
+            data += self.__socket.recv(size- len(data))
+        return self.__serializer.toObject(data)
+
     def read_response(self):
         try:
-            buff = self.__socket.recv(4096)
-            if "\r\n" not in buff:
-                return None
+            responseLine = self.__readLine()
+            if '#' in responseLine:
+                lines = int (responseLine[responseLine.index('#')+1])
+                sizeLine = self.__readLine()
+                sizes = sizeLine.split()
+                objects = []
+                if lines > 1:
+                    for size in sizes:
+                        objects.append(self.__readObject(int(size)))
+                    return objects
+                else :
+                    return self.__readObject(int(sizes[0]))
             else:
-                response = [x for x in buff.rsplit("\r\n") if x]
-                if len(response) > 1:
-                    size = int(response[1])
-                    data = response[2]
-                    while len (data) < size:
-                        data += self.__socket.recv(size- len(data))
-                    return self.__serializer.toObject(data)
-                else:
-                    if response[0] == 'OK 0':
+                if responseLine == 'OK 0':
+                    return True
+                elif len(responseLine.split()) > 2:
+                    if responseLine.split()[2] == "true":
                         return True
-                    elif len(response[0].split()) > 2:
-                        if response[0].split()[2] == "true":
-                            return True
-                        else:
-                            return False
                     else:
-                        return response[0]
+                        return False
+                else:
+                    return responseLine
             # response = filter(None,buff.rsplit("\r\n"))
         except (socket.error, socket.timeout) as e:
             print "error while reading from socket !!!" , e
