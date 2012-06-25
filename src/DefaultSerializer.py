@@ -59,10 +59,8 @@ class StringSerializer(TypeSerializer):
     def getTypeId(self):
         return SERIALIZER_TYPE_STRING
     def read(self,inputStream):
-        print "read ss"
         return inputStream.readUTF()
     def write(self, output, obj):
-        print "serializing with ss"
         output.writeUTF(obj)
 class IntegerSerializer(TypeSerializer):
     def priority(self):
@@ -74,7 +72,6 @@ class IntegerSerializer(TypeSerializer):
     def read(self,inputStream):
         return inputStream.readInt()
     def write(self, output, obj):
-        print "serializing with is"
         output.writeInt(obj)
 class LongSerializer(TypeSerializer):
     def priority(self):
@@ -84,11 +81,8 @@ class LongSerializer(TypeSerializer):
     def getTypeId(self):
         return SERIALIZER_TYPE_LONG
     def read(self,inputStream):
-        print "read ls"
-        #return readed integer
-        pass
+        return inputStream.readLong()
     def write(self, output, obj):
-        print "serializing with long serializer"
         output.writeLong(obj)
 class BooleanSerializer(TypeSerializer):
     def priority(self):
@@ -97,12 +91,9 @@ class BooleanSerializer(TypeSerializer):
         return isinstance(obj, bool)
     def getTypeId(self):
         return SERIALIZER_TYPE_BOOLEAN
-    def read(self):
-        print "read is"
-        #return readed integer
-        pass
+    def read(self,inputStream):
+        return inputStream.readBoolean()
     def write(self, output, obj):
-        print "serializing with boolean serializer"
         output.writeBoolean(obj)
 class DateSerializer(TypeSerializer):
     def priority(self):
