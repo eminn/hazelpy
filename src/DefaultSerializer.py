@@ -58,7 +58,7 @@ class StringSerializer(TypeSerializer):
         return isinstance(obj, basestring)
     def getTypeId(self):
         return SERIALIZER_TYPE_STRING
-    def read(self,inputStream):
+    def read(self, inputStream):
         return inputStream.readUTF()
     def write(self, output, obj):
         output.writeUTF(obj)
@@ -69,7 +69,7 @@ class IntegerSerializer(TypeSerializer):
         return isinstance(obj, int)
     def getTypeId(self):
         return SERIALIZER_TYPE_INTEGER
-    def read(self,inputStream):
+    def read(self, inputStream):
         return inputStream.readInt()
     def write(self, output, obj):
         output.writeInt(obj)
@@ -80,7 +80,7 @@ class LongSerializer(TypeSerializer):
         return isinstance(obj, long)
     def getTypeId(self):
         return SERIALIZER_TYPE_LONG
-    def read(self,inputStream):
+    def read(self, inputStream):
         return inputStream.readLong()
     def write(self, output, obj):
         output.writeLong(obj)
@@ -91,7 +91,7 @@ class BooleanSerializer(TypeSerializer):
         return isinstance(obj, bool)
     def getTypeId(self):
         return SERIALIZER_TYPE_BOOLEAN
-    def read(self,inputStream):
+    def read(self, inputStream):
         return inputStream.readBoolean()
     def write(self, output, obj):
         output.writeBoolean(obj)
@@ -106,7 +106,6 @@ class DateSerializer(TypeSerializer):
         #return readed integer
         pass
     def write(self, output, obj):
-        print "serializing with boolean serializer"
         output.writeLong(long((obj.time() * 1000))) # time in milis
                 
         

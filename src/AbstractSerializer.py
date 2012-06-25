@@ -9,13 +9,14 @@ class AbstractSerializer:
         self.output = OutputStream()
         self.input = InputStream()
     def toByte(self,obj):
-        self.output.flush()
         if object == None:
             return
         ts = self.ds if self.ds.isSuitable(obj) else self.cs
         self.output.writeByte(ts.getTypeId())
         ts.write(self.output,obj)
-        return self.output.buf
+        bytes = list(self.output.buf)
+        self.output.flush()
+        return bytes
     def toObject(self,data):
         self.input.setData(data)
         typeId = -1

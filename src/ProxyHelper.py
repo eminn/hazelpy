@@ -1,7 +1,6 @@
-from DefaultSerializer import DefaultSerializer
 from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
-import collections
+from DefaultSerializer import DefaultSerializer
 import types
 
 class ProxyHelper:
@@ -10,40 +9,35 @@ class ProxyHelper:
         self.__connection = connection
         self.__newline = '\r\n'
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
-
+    def put(self, key, value,ttl=0):
+        self.__proxyHelper.check(key)
+        self.__proxyHelper.check(value)
+        return self.__proxyHelper.doOp("MPUT",0,2,(key,value),self.__name,str(ttl))
     def check(self, obj):
         if obj == None:
-            print "object cannot be null" 
-        
+            raise ValueError("Object cannot be null")
     def doOp(self, command, flag=0, argsCount=0, binary=None, *c_args):
         command_str = command + ' ' + str(flag) + ' ' + ' '.join(c_args) + ' #' + str(argsCount) + self.__newline
         if argsCount != 0 and binary != None:
             size = ""
             data = bytearray()
-            if isinstance(binary,(types.ListType,types.TupleType)):
+            if isinstance(binary, (types.ListType, types.TupleType)):
                 for item in binary:
                     byte = self.__serializer.toByte(item)
-                    size +=str(len(byte)) + " " 
+                    size += str(len(byte)) + " " 
                     data.extend(byte)
-                    print list(data)
-            elif isinstance(binary,types.DictionaryType):
+            elif isinstance(binary, types.DictionaryType):
                 for k in binary.keys():
                     key = list(self.__serializer.toByte(k))
-                    print "key->",list(key)
                     value = list(self.__serializer.toByte(binary[k]))
-                    print "value->",list(value)
-                    size +=str(len(key)) + " " + str(len(value)) + " "
+                    size += str(len(key)) + " " + str(len(value)) + " "
                     data.extend(key)
                     data.extend(value)
-                    print list(data) 
             else:
                 byte = self.__serializer.toByte(binary)
                 size += str(len(byte)) + " "
                 data.extend(byte)
-                print list(data)
             command_str += size + self.__newline
-            print list(data)
             command_str += data
         print command_str
         return self.__connection.send_command(command_str)
-

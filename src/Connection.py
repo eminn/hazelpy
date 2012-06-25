@@ -9,7 +9,7 @@ class Connection:
         self.__address = (host, port)
         self.__socket = socket.socket()
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.__socket.settimeout(3.0)
+        self.__socket.settimeout(100.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
         try:
             self.__socket.connect(self.__address)
@@ -26,17 +26,29 @@ class Connection:
     def read_response(self):
         try:
             buff = self.__socket.recv(4096)
-            response = [x for x in buff.rsplit("\r\n") if x]
-            if len(response)>1:
-                size = response[1]
-                chunk= response[2]
-                data = chunk[0:int(size)]
-                return self.__serializer.toObject(data)
+            if "\r\n" not in buff:
+                return None
             else:
-                return response
-        # response = filter(None,buff.rsplit("\r\n"))
-        except socket.error, socket.timeout:
-                print "error while reading from socket !!!"
+                response = [x for x in buff.rsplit("\r\n") if x]
+                if len(response) > 1:
+                    size = int(response[1])
+                    data = response[2]
+                    while len (data) < size:
+                        data += self.__socket.recv(size- len(data))
+                    return self.__serializer.toObject(data)
+                else:
+                    if response[0] == 'OK 0':
+                        return True
+                    elif len(response[0].split()) > 2:
+                        if response[0].split()[2] == "true":
+                            return True
+                        else:
+                            return False
+                    else:
+                        return response[0]
+            # response = filter(None,buff.rsplit("\r\n"))
+        except (socket.error, socket.timeout) as e:
+            print "error while reading from socket !!!" , e
 
 
     def __str__(self):
