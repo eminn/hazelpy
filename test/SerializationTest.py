@@ -1,7 +1,7 @@
 import unittest
-from DefaultSerializer import DefaultSerializer
-from AbstractSerializer import AbstractSerializer
-from DataSerializer import DataSerializer
+from src.DefaultSerializer import DefaultSerializer
+from src.AbstractSerializer import AbstractSerializer
+from src.DataSerializer import DataSerializer
 
 class SerializationTest(unittest.TestCase):
     def setUp(self):

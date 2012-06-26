@@ -26,5 +26,6 @@ class AbstractSerializer:
             return ts.read(self.input)
         except Exception as e:
             print "serialization error"  , e
-        self.input.flush()
+        finally:
+            self.input.flush()
     

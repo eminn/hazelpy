@@ -3,7 +3,6 @@ from DefaultSerializer import DefaultSerializer
 from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
 class Connection:
-    buffersize = 16 << 10
     protocol = 'P01 \r\n'
     def __init__(self, host, port):
         self.__address = (host, port)
@@ -26,11 +25,11 @@ class Connection:
         line = ""
         while True:
             c = self.__socket.recv(1)
-            line += c
             if c == '\r':
                 c2 = self.__socket.recv(1)
                 if c2 == '\n':
                     break
+            line += c
         return line
     def __readObject(self,size):
         data = ""
@@ -41,6 +40,7 @@ class Connection:
     def read_response(self):
         try:
             responseLine = self.__readLine()
+            print responseLine
             if '#' in responseLine:
                 lines = int (responseLine[responseLine.index('#')+1])
                 sizeLine = self.__readLine()
@@ -58,14 +58,16 @@ class Connection:
                 elif len(responseLine.split()) > 2:
                     if responseLine.split()[2] == "true":
                         return True
+                    elif responseLine.split()[2] == "false":
+                        return False 
+                    elif responseLine.split()[1] == "ERROR":
+                        return False
                     else:
                         return False
                 else:
                     return responseLine
-            # response = filter(None,buff.rsplit("\r\n"))
         except (socket.error, socket.timeout) as e:
             print "error while reading from socket !!!" , e
-
 
     def __str__(self):
         return "Connection -> [" + str(self.__address) + "]"

@@ -1,5 +1,6 @@
+from src.HazelcastClient import HazelcastClient
 import unittest
-from HazelcastClient import HazelcastClient
+
 class MapTest(unittest.TestCase):
     def setUp(self):
         self.hc = HazelcastClient()
