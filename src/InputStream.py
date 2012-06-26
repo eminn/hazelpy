@@ -40,4 +40,4 @@ class InputStream:
         length = self.readInt()
         utflen = self.readShort()
         utfstr = (self.__buf[:utflen]).decode('utf-8')
-        return utfstr
+        return str(utfstr)

@@ -28,6 +28,11 @@ class MapClientProxy:
     def get(self, key):
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MGET", 0, 1, key, self.__name)
+    def getAll(self, keys): #com.hazelcast.nio.Data cannot be cast to java.lang.Comparable
+        for key in keys:
+            self.__proxyHelper.check(key)
+        return self.__proxyHelper.doOp("MGETALL", 0, len(keys), keys, self.__name)
+        
     def tryPut(self, key, value, timeout):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
@@ -38,10 +43,10 @@ class MapClientProxy:
     def isKeyLocked(self, key): # server handler doesn't give reply
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MISKEYLOCKED", 0, 1, key, self.__name)
-    def lock(self,key,timeout):
+    def lock(self, key, timeout):
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MLOCK", 0, 1, key, self.__name, str(timeout))
-    def unLock(self,key):
+    def unLock(self, key):
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MUNLOCK", 0, 1, key, self.__name)
 
@@ -54,12 +59,12 @@ class MapClientProxy:
         return self.__proxyHelper.doOp("MFORCEUNLOCK", 0, 1, key, self.__name)
     def containsKey(self, key):  
         self.__proxyHelper.check(key)
-        return self.__proxyHelper.doOp("MCONTAINSKEY", 0, 1, key,self.__name,"map")
+        return self.__proxyHelper.doOp("MCONTAINSKEY", 0, 1, key, self.__name, "map")
     def containsValue(self, value):   
         self.__proxyHelper.check(value)
-        return self.__proxyHelper.doOp("MCONTAINSVALUE", 0, 1, value, self.__name,"map")
+        return self.__proxyHelper.doOp("MCONTAINSVALUE", 0, 1, value, self.__name, "map")
     def keySet(self):
-        return self.__proxyHelper.doOp("KEYSET", 0, 0, None,"map",self.__name)
+        return self.__proxyHelper.doOp("KEYSET", 0, 0, None, "map", self.__name)
     def removeIfSame(self, key, value):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
@@ -68,13 +73,13 @@ class MapClientProxy:
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
         return self.__proxyHelper.doOp("MREPLACEIFNOTNULL", 0, 2, (key, value), self.__name,)
-    def replaceIfSame(self, key, oldValue,newValue): # ERROR 0 java.lang.String cannot be cast to com.hazelcast.impl.Keys 
+    def replaceIfSame(self, key, oldValue, newValue): # ERROR 0 java.lang.String cannot be cast to com.hazelcast.impl.Keys 
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(oldValue)
         self.__proxyHelper.check(newValue)
-        return self.__proxyHelper.doOp("MREPLACEIFSAME", 0, 3, (key, oldValue,newValue), self.__name,)
+        return self.__proxyHelper.doOp("MREPLACEIFSAME", 0, 3, (key, oldValue, newValue), self.__name,)
     def flush(self):
-        return self.__proxyHelper.doOp("MFLUSH", 0, 0, None,self.__name)
+        return self.__proxyHelper.doOp("MFLUSH", 0, 0, None, self.__name)
     def evict(self, key):  
         self.__proxyHelper.check(key)
-        return self.__proxyHelper.doOp("MEVICT", 0, 1, key,self.__name)
+        return self.__proxyHelper.doOp("MEVICT", 0, 1, key, self.__name)

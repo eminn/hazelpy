@@ -39,5 +39,4 @@ class ProxyHelper:
                 data.extend(byte)
             command_str += size + self.__newline
             command_str += data
-        print command_str
         return self.__connection.send_command(command_str)

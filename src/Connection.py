@@ -6,9 +6,9 @@ class Connection:
     protocol = 'P01 \r\n'
     def __init__(self, host, port):
         self.__address = (host, port)
-        self.__socket = socket.socket()
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.__socket.settimeout(3.0)
+        self.__socket.settimeout(100.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
         try:
             self.__socket.connect(self.__address)
@@ -36,22 +36,30 @@ class Connection:
         while len (data) < size:
             data += self.__socket.recv(size- len(data))
         return self.__serializer.toObject(data)
-
+    def __readCRLF(self):
+        while True:
+            c = self.__socket.recv(1)
+            if c == '\r':
+                c2 = self.__socket.recv(1)
+                if c2 == '\n':
+                    break        
     def read_response(self):
         try:
             responseLine = self.__readLine()
-            print responseLine
             if '#' in responseLine:
-                lines = int (responseLine[responseLine.index('#')+1])
+                count = int (responseLine[responseLine.index('#')+1:len(responseLine)])
                 sizeLine = self.__readLine()
                 sizes = sizeLine.split()
                 objects = []
-                if lines > 1:
+                if count > 1: # test other for this old : lines>1
                     for size in sizes:
                         objects.append(self.__readObject(int(size)))
+                    self.__readCRLF()
                     return objects
                 else :
-                    return self.__readObject(int(sizes[0]))
+                    obj = self.__readObject(int(sizes[0]))
+                    self.__readCRLF()
+                    return obj
             else:
                 if responseLine == 'OK 0':
                     return True

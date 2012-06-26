@@ -1,14 +1,15 @@
 # -*- coding: utf8 -*-
 
 from HazelcastClient import HazelcastClient
+import time
 
 hc = HazelcastClient()
-#print hc.getMap("mymap").put(1,"afsa")
-#print hc.getMap("mymap").put(32,"afsa")
-#print hc.getMap("mymap").put(14L,"afsa")
-#
-#print hc.getMap("mymap").put("eminn","afsssa")
-#
-#print hc.getMap("mymap").keySet()
+keys =  hc.getMap("mymap").keySet()
+print len(keys)
 
-print hc.getMap("mymap").evict(1)
+values = []
+for key in keys:
+    print "key-> " + str(key) + ",value-> " + str(hc.getMap("mymap").get(key))
+print len(keys)
+
+hc.close()  
