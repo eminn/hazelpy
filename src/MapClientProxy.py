@@ -1,8 +1,18 @@
 from ProxyHelper import ProxyHelper
+from ListenerManager import ListenerManager
 class MapClientProxy:
     def __init__(self , name , connection):
         self.__name = name
-        self.__proxyHelper = ProxyHelper(name, connection)
+        self.__proxyHelper = ProxyHelper(connection)
+    def addListener(self,listener,key=None,includeValue=False):
+        """ If key is provided listener will be notified only for the key,
+        otherwise it will notified for all entries in the map 
+        If includeValue set to True it will bring  values of the keys with every event"""
+        self.__listenerManager = ListenerManager()
+        self.__listenerManager.addListenerOp(listener,key,includeValue,self.__name)
+        self.__listenerManager.registerListener(listener)
+        self.__listenerManager.start()
+    
     def put(self, key, value, ttl=0):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
@@ -32,7 +42,6 @@ class MapClientProxy:
         for key in keys:
             self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MGETALL", 0, len(keys), keys, self.__name)
-        
     def tryPut(self, key, value, timeout):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)

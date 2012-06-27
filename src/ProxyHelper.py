@@ -4,15 +4,10 @@ from DefaultSerializer import DefaultSerializer
 import types
 
 class ProxyHelper:
-    def __init__(self, name, connection):
-        self.__name = name
+    def __init__(self, connection):
         self.__connection = connection
         self.__newline = '\r\n'
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
-    def put(self, key, value,ttl=0):
-        self.__proxyHelper.check(key)
-        self.__proxyHelper.check(value)
-        return self.__proxyHelper.doOp("MPUT",0,2,(key,value),self.__name,str(ttl))
     def check(self, obj):
         if obj == None:
             raise ValueError("Object cannot be null")

@@ -4,24 +4,33 @@ from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
 class Connection:
     protocol = 'P01 \r\n'
-    def __init__(self, host, port):
-        self.__address = (host, port)
+    def __init__(self, id, (host, port), username, password):
+        self.id = id
+        self.address = (host, port)
+        self.__username = username 
+        self.__password = password
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.__socket.settimeout(100.0)
+        self.__socket.settimeout(10.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
+        self.connect()
+    def connect(self):
         try:
-            self.__socket.connect(self.__address)
+            self.__socket.connect(self.address)
             self.__socket.sendall(self.protocol)
+            self.authenticate(self.__username, self.__password)
         except socket.error:
             print 'Socket connect failed!'
             self.__socket.close()
-
+    
+    def authenticate(self, username, password):
+        command = "AUTH " + "0 " + username + " " + password + " \r\n"
+        self.send_command(command)
     def send_command(self, command):
         self.__socket.sendall(command)
         return self.read_response()
-
-    def __readLine(self):
+ 
+    def _readLine(self):
         line = ""
         while True:
             c = self.__socket.recv(1)
@@ -31,10 +40,10 @@ class Connection:
                     break
             line += c
         return line
-    def __readObject(self,size):
+    def __readObject(self, size):
         data = ""
         while len (data) < size:
-            data += self.__socket.recv(size- len(data))
+            data += self.__socket.recv(size - len(data))
         return self.__serializer.toObject(data)
     def __readCRLF(self):
         while True:
@@ -45,10 +54,10 @@ class Connection:
                     break        
     def read_response(self):
         try:
-            responseLine = self.__readLine()
+            responseLine = self._readLine()
             if '#' in responseLine:
-                count = int (responseLine[responseLine.index('#')+1:len(responseLine)])
-                sizeLine = self.__readLine()
+                count = int (responseLine[responseLine.index('#') + 1:len(responseLine)])
+                sizeLine = self._readLine()
                 sizes = sizeLine.split()
                 objects = []
                 if count > 1: # test other for this old : lines>1
@@ -77,8 +86,7 @@ class Connection:
         except (socket.error, socket.timeout) as e:
             print "error while reading from socket !!!" , e
 
-    def __str__(self):
-        return "Connection -> [" + str(self.__address) + "]"
-
+    def setTimeout(self,timeout):
+        self.__socket.settimeout(timeout)
     def close(self):
-        self.__socket.close()
+        self.__socket.shutdown(socket.SHUT_RDWR)
