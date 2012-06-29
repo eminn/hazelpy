@@ -1,7 +1,7 @@
 from Connection import Connection
 from random import choice
 class ConnectionManager(object):
-    __CONNECTION_LIMIT = 5
+    __CONNECTION_LIMIT = 2
     __connections = {}
     def __new__(cls):
         if not '__instance' in cls.__dict__:
@@ -9,9 +9,9 @@ class ConnectionManager(object):
         return cls.__instance
     
     def createConnections(self,(host,port),username,password):
-        if len(self.__connections) > 4:
+        if len(self.__connections) > ConnectionManager.__CONNECTION_LIMIT - 1:
             return
-        for x in range(0,self.__CONNECTION_LIMIT):
+        for x in range(0,ConnectionManager.__CONNECTION_LIMIT):
             self.__connections[x] = Connection(x,(host,port),username,password)
     def getConnection(self):
         if len(self.__connections) > 0:
@@ -21,7 +21,7 @@ class ConnectionManager(object):
             return None
 
     def putBack(self,connection):
-        if len(self.__connections) < 5:
+        if len(self.__connections) < ConnectionManager.__CONNECTION_LIMIT:
             connection.close()
             self.__connections[connection.id] = connection
     def closeAll(self):

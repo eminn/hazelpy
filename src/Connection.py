@@ -25,12 +25,12 @@ class Connection:
     
     def authenticate(self, username, password):
         command = "AUTH " + "0 " + username + " " + password + " \r\n"
-        self.send_command(command)
-    def send_command(self, command):
+        self.sendCommand(command)
+    def sendCommand(self, command):
         self.__socket.sendall(command)
-        return self.read_response()
+        return self.readResponse()
  
-    def _readLine(self):
+    def readLine(self):
         line = ""
         while True:
             c = self.__socket.recv(1)
@@ -40,34 +40,34 @@ class Connection:
                     break
             line += c
         return line
-    def __readObject(self, size):
+    def readObject(self, size):
         data = ""
         while len (data) < size:
             data += self.__socket.recv(size - len(data))
         return self.__serializer.toObject(data)
-    def __readCRLF(self):
+    def readCRLF(self):
         while True:
             c = self.__socket.recv(1)
             if c == '\r':
                 c2 = self.__socket.recv(1)
                 if c2 == '\n':
                     break        
-    def read_response(self):
+    def readResponse(self):
         try:
-            responseLine = self._readLine()
+            responseLine = self.readLine()
             if '#' in responseLine:
-                count = int (responseLine[responseLine.index('#') + 1:len(responseLine)])
-                sizeLine = self._readLine()
+                count = int (responseLine[responseLine.index('#') + 1:])
+                sizeLine = self.readLine()
                 sizes = sizeLine.split()
                 objects = []
                 if count > 1: # test other for this old : lines>1
                     for size in sizes:
-                        objects.append(self.__readObject(int(size)))
-                    self.__readCRLF()
+                        objects.append(self.readObject(int(size)))
+                    self.readCRLF()
                     return objects
                 else :
-                    obj = self.__readObject(int(sizes[0]))
-                    self.__readCRLF()
+                    obj = self.readObject(int(sizes[0]))
+                    self.readCRLF()
                     return obj
             else:
                 if responseLine == 'OK 0':

@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from EntryListener import EntryListener
 class MapEntryListener(EntryListener):
+    TYPE_LISTENER = "map"
     def __init__(self):
         __metaclass__ = ABCMeta
     @abstractmethod

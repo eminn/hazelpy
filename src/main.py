@@ -4,25 +4,29 @@ from HazelcastClient import HazelcastClient
 from MapEntryListener import MapEntryListener
 
 hc = HazelcastClient()
-keys =  hc.getMap("mymap").keySet()
-print keys
 class el(MapEntryListener):
     def entryAdded(self,event):
         print "entry Adsded"
+        print "key->" , event.key
+        print "value->" , event.value
     def entryRemoved(self, event):
         print "entry rm"
+        print "key->" , event.key
+        print "value->" , event.value
+
     def entryUpdated(self,event):
         print "entry up"
+        print "key->" , event.key
+        print "value->" , event.value
+        print "oldValue->" , event.oldValue
     def entryEvicted(self, event):
         print "entry evi"
+        print "key->" , event.key
+el = el()
+hc.getMap("mymap").addListener(el,21,True)
 
-hc.getMap("mymap").addListener(el())
-hc.getMap("default").addListener(el())
-
+hc.getMap("mymap").put(212,122)
+hc.getMap("mymap").put(212,122)
 hc.getMap("mymap").put(21,1222)
-values = []
-for key in keys:
-    print "key-> " + str(key) + ",value-> " + str(hc.getMap("mymap").get(key))
-print len(keys)
 
-hc.close()  
+hc.getMap("mymap").remove(21)
