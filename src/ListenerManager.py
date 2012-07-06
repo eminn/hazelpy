@@ -4,8 +4,8 @@ from ConnectionManager import ConnectionManager
 from MapEntryListener import MapEntryListener
 from EntryEvent import EntryEvent
 from ItemEvent import ItemEvent
-from MapClientProxy import MapClientProxy
-import socket
+import socket,time
+import threading
 
 class ListenerManager(Thread):
     def __new__(cls):
@@ -19,9 +19,11 @@ class ListenerManager(Thread):
         self.__listeners = {} #eventTypes
         self.__connection.setTimeout(None)
         self.__proxyHelper = ProxyHelper(self.__connection)
+        self.__lock = threading.Lock()
+        self.isRunning = False
         
     def run(self):
-        while True:
+        while self.isRunning:
             event = self.parseEvent()
             self.notifyListeners(event)
     
@@ -90,17 +92,30 @@ class ListenerManager(Thread):
     def addListenerOp(self, listener, key, includeValue, name):
         if isinstance(listener, MapEntryListener):
             if key is not None:
-                self.__proxyHelper.doOp("MADDLISTENER", MapClientProxy.FLAG, 1, key, name, "false" if includeValue == False else "true")
+                self.__proxyHelper.doOp("MADDLISTENER", 0, 1, key, name, "false" if includeValue == False else "true")
             else:
                 self.__proxyHelper.doOp("MADDLISTENER", 0, 0, None, name, "false" if includeValue == False else "true")
+        self.registerListener(listener)
+        self.isRunning = True
+        self.start()
+
+    
+    def removeListenerOp(self, listener, key, name):
+        if isinstance(listener, MapEntryListener):
+            if key is not None:
+                self.__proxyHelper.doOp("MREMOVELISTENER", 0, 1, key, name)
+            else:
+                self.__proxyHelper.doOp("MREMOVELISTENER", 0, 0, None, name)
+        self.unregisterListener(listener)
+        # do a length check to __listeners and stop the thread if neccessary
     def registerListener(self, listener):
-        print self.__listeners
         if self.__listeners.has_key(listener.TYPE_LISTENER):
             if listener not in self.__listeners[listener.TYPE_LISTENER]:
                 self.__listeners[listener.TYPE_LISTENER].append(listener) 
         else:
             self.__listeners[listener.TYPE_LISTENER] = [listener]
-    def removeListener(self, listener):
-        if listener in self.__listeners:
-            self.__listeners.remove(listener)
-    
+
+    def unregisterListener(self, listener):
+        if listener in self.__listeners[listener.TYPE_LISTENER]:
+            self.__listeners[listener.TYPE_LISTENER].remove(listener)
+        

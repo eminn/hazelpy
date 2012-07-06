@@ -13,7 +13,6 @@ class el(MapEntryListener):
         print "entry rm"
         print "key->" , event.key
         print "value->" , event.value
-
     def entryUpdated(self,event):
         print "entry up"
         print "key->" , event.key
@@ -23,10 +22,11 @@ class el(MapEntryListener):
         print "entry evi"
         print "key->" , event.key
 el = el()
-hc.getMap("mymap").addListener(el,21,True)
+mymap = hc.getMap("mymap")
+mymap.addListener(el,21,True)
+mymap.put(21,1222)
+mymap.put(212,122)
 
-hc.getMap("mymap").put(212,122)
-hc.getMap("mymap").put(212,122)
-hc.getMap("mymap").put(21,1222)
+mymap.remove(21)
 
-hc.getMap("mymap").remove(21)
+mymap.removeListener(el)

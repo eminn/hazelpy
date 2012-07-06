@@ -8,12 +8,11 @@ class MapClientProxy:
     def addListener(self, listener, key=None, includeValue=False):
         """ If key is provided listener will be notified only for the key,
         otherwise it will notified for all entries in the map 
-        If includeValue set to True it will bring  values of the keys with every event"""
+        If includeValue set to True it will bring  values for the keys with the event"""
         self.__listenerManager = ListenerManager()
         self.__listenerManager.addListenerOp(listener, key, includeValue, self.__name)
-        self.__listenerManager.registerListener(listener)
-        self.__listenerManager.start()
-    
+    def removeListener(self, listener, key=None):
+        self.__listenerManager.removeListenerOp(listener, key, self.__name)    
     def put(self, key, value, ttl=0):
         self.__proxyHelper.check(key)
         self.__proxyHelper.check(value)
