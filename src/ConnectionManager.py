@@ -3,27 +3,23 @@ from random import choice
 class ConnectionManager(object):
     __CONNECTION_LIMIT = 2
     __connections = {}
+    __count = 0
     def __new__(cls):
         if not '__instance' in cls.__dict__:
             cls.__instance = object.__new__(cls)
         return cls.__instance
-    
-    def createConnections(self,(host,port),username,password):
-        if len(self.__connections) > ConnectionManager.__CONNECTION_LIMIT - 1:
-            return
-        for x in range(0,ConnectionManager.__CONNECTION_LIMIT):
-            self.__connections[x] = Connection(x,(host,port),username,password)
     def getConnection(self):
-        if len(self.__connections) > 0:
-            # popitem
-            return self.__connections.pop(choice(self.__connections.keys()))
+        if self.__count < self.__CONNECTION_LIMIT:
+            self.__connections[self.__count] = Connection(self.__address,self.__username,self.__password)
+            self.__count += 1
+            self.__connections[self.__count-1]
+            return self.__connections[self.__count-1]
         else:
-            return None
-
-    def putBack(self,connection):
-        if len(self.__connections) < ConnectionManager.__CONNECTION_LIMIT:
-            connection.close()
-            self.__connections[connection.id] = connection
+            return  None
+    def setCredentials(self, address,username,password):
+        self.__address = address
+        self.__username = username
+        self.__password = password
     def closeAll(self):
         for key in self.__connections.keys():
             self.__connections[key].close()

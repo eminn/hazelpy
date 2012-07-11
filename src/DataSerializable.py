@@ -7,3 +7,6 @@ class DataSerializable:
     @abstractmethod
     def readData(self,inputStream):
         raise NotImplementedError
+    @abstractmethod
+    def getJavaClassName(self):
+    	raise NotImplementedError

@@ -25,7 +25,7 @@ class AbstractSerializer:
             ts = self.ds if self.ds.getTypeId()==typeId else self.cs
             return ts.read(self.input)
         except Exception as e:
-            print "serialization error"  , e
+            print "serialization error while reading"  , e
         finally:
             self.input.flush()
     

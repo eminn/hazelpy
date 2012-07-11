@@ -9,7 +9,10 @@ class MapClientProxy:
         """ If key is provided listener will be notified only for the key,
         otherwise it will notified for all entries in the map 
         If includeValue set to True it will bring  values for the keys with the event"""
-        self.__listenerManager = ListenerManager()
+        self.__listenerManager = ListenerManager(self.__proxyHelper)
+        listener.listenerManager = self.__listenerManager
+        listener.key = key
+        listener.name = self.__name
         self.__listenerManager.addListenerOp(listener, key, includeValue, self.__name)
     def removeListener(self, listener, key=None):
         self.__listenerManager.removeListenerOp(listener, key, self.__name)    
@@ -58,7 +61,6 @@ class MapClientProxy:
     def unLock(self, key):
         self.__proxyHelper.check(key)
         return self.__proxyHelper.doOp("MUNLOCK", MapClientProxy.FLAG, 1, key, self.__name)
-
     def lockMap(self, timeout):
         return self.__proxyHelper.doOp("MLOCKMAP", MapClientProxy.FLAG, 0, None, self.__name, str(timeout))
     def unlockMap(self, timeout):

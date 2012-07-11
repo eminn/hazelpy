@@ -4,8 +4,7 @@ from AbstractSerializer import AbstractSerializer
 from DataSerializer import DataSerializer
 class Connection:
     protocol = 'P01 \r\n'
-    def __init__(self, id, (host, port), username, password):
-        self.id = id
+    def __init__(self,(host, port), username, password):
         self.address = (host, port)
         self.__username = username 
         self.__password = password
@@ -13,7 +12,6 @@ class Connection:
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self.__socket.settimeout(10.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
-        self.connect()
     def connect(self):
         try:
             self.__socket.connect(self.address)
@@ -75,12 +73,12 @@ class Connection:
                 elif len(responseLine.split()) > 2:
                     if responseLine.split()[2] == "true":
                         return True
-                    elif responseLine.split()[2] == "false":
+                    elif responseLine.split()[2] == "false" or responseLine.split()[2] == "unknown_command": 
                         return False 
                     elif responseLine.split()[1] == "ERROR":
                         return False
                     else:
-                        return False
+                        return int(responseLine.split()[2])
                 else:
                     return responseLine
         except (socket.error, socket.timeout) as e:

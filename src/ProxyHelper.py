@@ -5,14 +5,15 @@ import types
 
 class ProxyHelper:
     def __init__(self, connection):
-        self.__connection = connection
+        self.connection = connection
         self.__newline = '\r\n'
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
     def check(self, obj):
         if obj == None:
             raise ValueError("Object cannot be null")
     def doOp(self, command, flag=0, argsCount=0, binary=None, *c_args):
-        command_str = command + ' ' + str(flag) + ' ' + ' '.join(c_args) + ' #' + str(argsCount) + self.__newline
+        count = "" if argsCount == 0 else ' #' + str(argsCount)
+        command_str = command + ' ' + str(flag) + ' ' + ' '.join(c_args) + count + self.__newline
         if argsCount != 0 and binary != None:
             size = ""
             data = bytearray()
@@ -34,5 +35,4 @@ class ProxyHelper:
                 data.extend(byte)
             command_str += size + self.__newline
             command_str += data + self.__newline
-        print command_str
-        return self.__connection.sendCommand(command_str)
+        return self.connection.sendCommand(command_str)
