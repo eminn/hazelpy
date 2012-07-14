@@ -3,7 +3,7 @@ import unittest
 
 class QueueTest(unittest.TestCase):
 	def setUp(self):
-		self.hc = HazelcastClient("localhost",5702)
+		self.hc = HazelcastClient("localhost")
 		self.queue = self.hc.getQueue("myqueue")
 	def test_01_offer(self):
 		assert self.queue.offer(11) == True , "offer failed"
@@ -11,7 +11,7 @@ class QueueTest(unittest.TestCase):
 		assert self.queue.peek() == 11 , "peek failed"
 	def test_03_size(self):
 		assert self.queue.size() == 1 , "size is wrong"
-	def test_04_take(self):
+	def test_04_take(self):	
 		self.queue.offer(21)
 		assert	self.queue.take() == 21 , "take failed"
 	def test_05_poll(self):
@@ -23,4 +23,3 @@ class QueueTest(unittest.TestCase):
 		remcap = self.queue.remainingCapacity()
 		self.queue.offer(123)
 		assert self.queue.remainingCapacity() == remcap -1 , "retrieving remcap failed" 
-
