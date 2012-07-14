@@ -32,4 +32,5 @@ class MapTest(unittest.TestCase):
     	assert set(y.keys()).issubset(self.map.keySet())  == True, "putAll failed" 
     def test_11_Remove(self):
     	assert self.map.remove(12) == 13 , "remove failed"
-
+    def tearDown(self):
+    	self.hc.close()

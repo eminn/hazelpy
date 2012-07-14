@@ -23,3 +23,5 @@ class QueueTest(unittest.TestCase):
 		remcap = self.queue.remainingCapacity()
 		self.queue.offer(123)
 		assert self.queue.remainingCapacity() == remcap -1 , "retrieving remcap failed" 
+	def tearDown(self):
+		self.hc.close()
