@@ -12,12 +12,12 @@ class GeneralClientProxy:
 	def txnRollback(self):
 		return self.__proxyHelper.doOp("TRXROLLBACK", GeneralClientProxy.FLAG, 0, None)
 	def instances(self):
-		raise NotImplementedError
+		return self.__proxyHelper.doOp("INSTANCES", GeneralClientProxy.FLAG, 0, None)
 	def members(self):
-		raise NotImplementedError
-	def clusterTime(self):
-		raise NotImplementedError
+		return self.__proxyHelper.doOp("MEMBERS", GeneralClientProxy.FLAG, 0, None)
 	def ping(self):
+		return self.__proxyHelper.doOp("PING", GeneralClientProxy.FLAG, 0, None)
+	def clusterTime(self):
 		raise NotImplementedError
 	def partitions(self):
 		raise NotImplementedError
