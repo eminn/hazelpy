@@ -1,5 +1,6 @@
 from src.HazelcastClient import HazelcastClient
-import unittest
+from src.MapEntryListener import MapEntryListener
+import unittest,threading,time
 
 class MapTest(unittest.TestCase):
     def setUp(self):
@@ -27,9 +28,52 @@ class MapTest(unittest.TestCase):
     	y={}
     	for x in range(1,4):
   			y[x]=x
-       	print y,self.map.keySet()
     	self.map.putAll(y)
     	assert set(y.keys()).issubset(self.map.keySet())  == True, "putAll failed" 
+    def test_09_addListener(self):
+        listenedMapName = "listenerTest1"
+        class MapListener(MapEntryListener):
+            def entryAdded(self,event):
+                print "entry added"
+                print "key->" , event.key
+                print "value->" , event.value
+                assert event.key == 1 , "key is wrong"
+                assert event.value == 1, "value is wrong"
+            def entryRemoved(self, event):
+                print "entry removed"
+                print "key->" , event.key
+                print "value->" , event.value
+                assert event.key == 1 , "key is wrong"
+                assert event.value == 2, "value is wrong"
+            def entryUpdated(self,event):
+                print "entry updated"
+                print "key->" , event.key
+                print "value->" , event.value
+                print "oldValue->" , event.oldValue
+                assert event.key == 1 , "key is wrong"
+                assert event.value == 2, "value is wrong"
+                assert event.oldValue == 1, "oldValue is wrong"
+            def entryEvicted(self, event):
+                print "entry evicted"
+                print "key->" , event.key
+                assert event.key == 1 , "key is wrong"
+                done.set()
+        class ListenerThread(threading.Thread):
+            def run(self):
+                hc = HazelcastClient()
+                mymap = hc.getMap(listenedMapName)
+                mymap.addListener(MapListener(),None,True)
+        lt = ListenerThread()
+        lt.start()
+        time.sleep(2)
+        done = threading.Event()
+        self.hc.getMap(listenedMapName).put(1,1)
+        self.hc.getMap(listenedMapName).put(1,2)
+        self.hc.getMap(listenedMapName).remove(1)
+        self.hc.getMap(listenedMapName).put(1,1)
+        self.hc.getMap(listenedMapName).evict(1)
+        done.wait()
+
     def test_11_Remove(self):
     	assert self.map.remove(12) == 13 , "remove failed"
     def tearDown(self):

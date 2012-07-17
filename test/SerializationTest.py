@@ -6,7 +6,8 @@ from src.DataSerializer import DataSerializer
 class SerializationTest(unittest.TestCase):
     def setUp(self):
         self.serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
-    def testIntegerSerializer(self):
+    def test_01_serialization(self):
         assert self.serializer.toByte(121) == [1, 2, 0, 0, 0, 121] ,"serialization error"
-        assert self.serializer.toObject([1, 2, 0, 0, 0, 121]) == 121 , "de-serialization error"
+    def test_02_deserialiation(self):    
+    	assert self.serializer.toObject([1, 2, 0, 0, 0, 121]) == 121 , "de-serialization error"
     

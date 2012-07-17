@@ -78,7 +78,7 @@ class Connection:
                     elif responseLine.split()[1] == "ERROR":
                         return False
                     else:
-                        print responseLine
+                        #print responseLine
                         return int(responseLine.split()[2])
                 else:
                     return responseLine

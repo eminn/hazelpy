@@ -14,7 +14,7 @@ class QueueTest(unittest.TestCase):
 		self.queue.offer(145)
 		assert self.queue.entries() == entries + [145], "retrieving entries failed"
 		self.queue.remove(145)
-		assert self.queue.entries() == entries , "retrieving entries failed"
+		assert sorted(self.queue.entries()) == sorted(entries) , "retrieving entries failed"
 	def test_04_size(self):
 		size = self.queue.size()
 		self.queue.offer(1)
