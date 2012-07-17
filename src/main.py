@@ -1,34 +1,26 @@
 # -*- coding: utf8 -*-
 
 from HazelcastClient import HazelcastClient
-from MapEntryListener import MapEntryListener
 from DataSerializable import DataSerializable
+from QueueItemListener import QueueItemListener
 import threading
-class el(MapEntryListener):
-    def entryAdded(self,event):
+class el(QueueItemListener):
+    def itemAdded(self,event):
         print "entry Added"
         print "key->" , event.key
         print "value->" , event.value
-    def entryRemoved(self, event):
+    def itemRemoved(self, event):
         print "entry rm"
         print "key->" , event.key
         print "value->" , event.value
         self.removeThis()
-    def entryUpdated(self,event):
-        print "entry up"
-        print "key->" , event.key
-        print "value->" , event.value
-        print "oldValue->" , event.oldValue
-    def entryEvicted(self, event):
-        print "entry evi"
-        print "key->" , event.key
 
 class t(threading.Thread):
     def run(self):
-        client = HazelcastClient()
-        mymap = client.getMap("mymap")
+        client = HazelcastClient("localhost",5701)
+        mymap = client.getQueue("myqueue")
         els = el()
-        mymap.addListener(els,None,True)
+        mymap.addListener(els)
 t().start()
 
 class Person(DataSerializable):
@@ -37,7 +29,7 @@ class Person(DataSerializable):
         self.surname = "demirci"
         self.javaClassName = "com.eminn.Person"
     def readData(self,inputStream):
-        self.name = inputStream.readUTF()
+        self.name = inputStream.readUTF()   
         self.surname = inputStream.readUTF()
     def writeData(self,outputStream):
         outputStream.writeUTF(self.name)
@@ -46,11 +38,13 @@ class Person(DataSerializable):
         return self.javaClassName
 
 person = Person()
-hc = HazelcastClient("localhost",5702)
+hc = HazelcastClient("localhost",5701)
 mymap = hc.getMap("mymap")
 #mymap.put(1,person)
-print mymap.get(2)
+mymap.put(21,214)
+mymap.put(212,441)
+mymap.put(21,"as")
+mymap.remove(212)
 mymap.remove(21)
-
 myqueue = hc.getQueue("myqueue")
 myqueue.offer(1)

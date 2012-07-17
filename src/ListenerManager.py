@@ -2,6 +2,7 @@ from threading import Thread
 from ProxyHelper import ProxyHelper
 from ConnectionManager import ConnectionManager
 from MapEntryListener import MapEntryListener
+from QueueItemListener import QueueItemListener
 from EntryEvent import EntryEvent
 from ItemEvent import ItemEvent
 import socket,time
@@ -67,13 +68,14 @@ class ListenerManager:
             responseLine = responseLine.split()
             if responseLine[0] == "EVENT":
                 listenerType = responseLine[2]
-                if listenerType == MapEntryListener.TYPE_LISTENER or listenerType == "null": # null is for current buggy clientprotocol implementation
+                if listenerType == MapEntryListener.TYPE_LISTENER:
                     name = responseLine[3]
                     eventType = responseLine[4]
                     event = EntryEvent(eventType, listenerType, name, key, value, oldValue)
-                elif listenerType == "queue":
-                    #create ItemEvent
-                    raise NotImplementedError
+                elif listenerType == QueueItemListener.TYPE_LISTENER:
+                    name = responseLine[3]
+                    eventType = responseLine[4]
+                    event = ItemEvent(eventType, listenerType, name, value)
                 elif listenerType == "topic":
                     raise NotImplementedError
                 else:
@@ -88,6 +90,8 @@ class ListenerManager:
                 self.__proxyHelper.doOp("MADDLISTENER", 0, 1, key, name, "false" if includeValue == False else "true")
             else:
                 self.__proxyHelper.doOp("MADDLISTENER", 0, 0, None, name, "false" if includeValue == False else "true")
+        elif isinstance(listener, QueueItemListener):
+            self.__proxyHelper.doOp("QADDLISTENER", 0, 0, None, name, "false" if includeValue == False else "true")
         self.registerListener(listener)
         self.isRunning = True
         self.run()
@@ -107,7 +111,6 @@ class ListenerManager:
                 self.__listeners[listener.TYPE_LISTENER].append(listener) 
         else:
             self.__listeners[listener.TYPE_LISTENER] = [listener]
-        self.isRunning = False
     def unregisterListener(self, listener):
         if listener in self.__listeners[listener.TYPE_LISTENER]:
             self.__listeners[listener.TYPE_LISTENER].remove(listener)

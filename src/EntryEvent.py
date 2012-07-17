@@ -5,9 +5,9 @@ class EntryEvent:
     TYPE_EVICTED = "EVICTED"
     def __init__(self, eventType, listenerType, name, key, value, oldValue=None):
         self.eventType = eventType
+        self.listenerType = listenerType
+        self.name = name
         self.key = key
         self.value = value
         self.oldValue = oldValue
-        self.name = name
-        self.listenerType = listenerType
         

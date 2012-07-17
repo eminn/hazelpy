@@ -70,10 +70,10 @@ class MapClientProxy:
         return self.__proxyHelper.doOp("MFORCEUNLOCK", MapClientProxy.FLAG, 1, key, self.__name)
     def containsKey(self, key):  
         self.__proxyHelper.check(key)
-        return self.__proxyHelper.doOp("MCONTAINSKEY", MapClientProxy.FLAG, 1, key, self.__name, "map")
+        return self.__proxyHelper.doOp("MCONTAINSKEY", MapClientProxy.FLAG, 1, key, self.__name)
     def containsValue(self, value):   
         self.__proxyHelper.check(value)
-        return self.__proxyHelper.doOp("MCONTAINSVALUE", MapClientProxy.FLAG, 1, value, self.__name, "map")
+        return self.__proxyHelper.doOp("MCONTAINSVALUE", MapClientProxy.FLAG, 1, value, self.__name)
     def keySet(self):
         return self.__proxyHelper.doOp("KEYSET", MapClientProxy.FLAG, 0, None, "map", self.__name)
     def remove(self, key):
