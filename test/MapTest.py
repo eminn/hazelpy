@@ -4,7 +4,7 @@ import unittest,threading,time
 
 class MapTest(unittest.TestCase):
     def setUp(self):
-        self.hc = HazelcastClient("localhost")
+        self.hc = HazelcastClient("localhost",5702)
         self.map = self.hc.getMap("mymap")
     def test_01_put(self):
     	result = self.map.put(12,12)

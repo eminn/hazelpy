@@ -29,19 +29,21 @@ class Connection:
         return self.readResponse()
  
     def readLine(self):
-        line = ""
+        line = []
         while True:
             c = self.__socket.recv(1)
             if c == '\r':
                 c2 = self.__socket.recv(1)
                 if c2 == '\n':
                     break
-            line += c
-        return line
+            line.append(c)
+        return "".join(line)
     def readObject(self, size):
-        data = ""
-        while len (data) < size:
-            data += self.__socket.recv(size - len(data))
+        data = bytearray()
+        while size > 0:
+            chunk = self.__socket.recv(size)
+            data.extend(chunk) 
+            size -= len(chunk)
         return self.__serializer.toObject(data)
     def readCRLF(self):
         while True:

@@ -1,25 +1,26 @@
 from TypeSerializer import TypeSerializer
-import time
-SERIALIZER_TYPE_OBJECT = 0;
-SERIALIZER_TYPE_BYTE_ARRAY = 1;
-SERIALIZER_TYPE_INTEGER = 2;
-SERIALIZER_TYPE_LONG = 3;
-SERIALIZER_TYPE_CLASS = 4;
-SERIALIZER_TYPE_STRING = 5;
-SERIALIZER_TYPE_DATE = 6;
-SERIALIZER_TYPE_BIG_INTEGER = 7;
-SERIALIZER_TYPE_EXTERNALIZABLE = 8;
-SERIALIZER_TYPE_BOOLEAN = 9;
-#SERIALIZER_PRIORITY_OBJECT = Integer.MAX_VALUE;
-SERIALIZER_PRIORITY_BYTE_ARRAY = 100;
-SERIALIZER_PRIORITY_INTEGER = 300;
-SERIALIZER_PRIORITY_BOOLEAN = 200;# changed from 300 because of bool is subclass of int
-SERIALIZER_PRIORITY_LONG = 200;
-SERIALIZER_PRIORITY_CLASS = 500;
-SERIALIZER_PRIORITY_STRING = 400;
-SERIALIZER_PRIORITY_DATE = 500;
-SERIALIZER_PRIORITY_BIG_INTEGER = 600;
-SERIALIZER_PRIORITY_EXTERNALIZABLE = 50;
+import cPickle as pickle
+import time,sys
+SERIALIZER_TYPE_OBJECT = 0
+SERIALIZER_TYPE_BYTE_ARRAY = 1
+SERIALIZER_TYPE_INTEGER = 2
+SERIALIZER_TYPE_LONG = 3
+SERIALIZER_TYPE_CLASS = 4
+SERIALIZER_TYPE_STRING = 5
+SERIALIZER_TYPE_DATE = 6
+SERIALIZER_TYPE_BIG_INTEGER = 7
+SERIALIZER_TYPE_EXTERNALIZABLE = 8
+SERIALIZER_TYPE_BOOLEAN = 9
+SERIALIZER_PRIORITY_OBJECT = sys.maxint
+SERIALIZER_PRIORITY_BYTE_ARRAY = 100
+SERIALIZER_PRIORITY_INTEGER = 300
+SERIALIZER_PRIORITY_BOOLEAN = 200# changed from 300 because of bool is subclass of int
+SERIALIZER_PRIORITY_LONG = 200
+SERIALIZER_PRIORITY_CLASS = 500
+SERIALIZER_PRIORITY_STRING = 400
+SERIALIZER_PRIORITY_DATE = 500
+SERIALIZER_PRIORITY_BIG_INTEGER = 600
+SERIALIZER_PRIORITY_EXTERNALIZABLE = 50
 class DefaultSerializer:
     def __init__(self):
         self.serializers = []
@@ -27,10 +28,12 @@ class DefaultSerializer:
         self.addSerializer(StringSerializer())
         self.addSerializer(LongSerializer())
         self.addSerializer(BooleanSerializer())
+        self.addSerializer(ObjectSerializer())
+        self.addSerializer(ByteArraySerializer())
         self.typeSerializer = {}
         self.serializers = sorted(self.serializers)
         for ts in self.serializers:
-            self.typeSerializer[ts.getTypeId()] = ts           
+            self.typeSerializer[ts.getTypeId()] = ts
     def addSerializer(self, serializer):
         self.serializers.append(serializer)
     def write(self, output, obj):
@@ -49,8 +52,33 @@ class DefaultSerializer:
         typeId = inputStream.readByte()
         if typeId == -1:
             raise AttributeError("There is no suitable serializer")
+        print typeId
         return self.typeSerializer[typeId].read(inputStream)
-        
+class ObjectSerializer(TypeSerializer):
+    def priority(self):
+        return SERIALIZER_PRIORITY_OBJECT
+    def isSuitable(self,obj):
+        return isinstance(obj,object)
+    def getTypeId(self):
+        return SERIALIZER_TYPE_OBJECT
+    def read(self,inputStream):
+        data = inputStream.readBytes()
+        return pickle.loads(data)
+    def write(self,output,obj):
+        data = bytearray()
+        data.extend(pickle.dumps(obj, pickle.HIGHEST_PROTOCOL))
+        output.writeBytes(data);
+class ByteArraySerializer(TypeSerializer):
+    def priority(self):
+        return SERIALIZER_PRIORITY_BYTE_ARRAY
+    def isSuitable(self,obj):
+        return isinstance(obj,bytearray)
+    def getTypeId(self):
+        return SERIALIZER_TYPE_BYTE_ARRAY
+    def read(self,inputStream):
+        return inputStream.readBytes()
+    def write(self,output,obj):
+        output.writeBytes(obj);
 class StringSerializer(TypeSerializer):
     def priority(self):
         return SERIALIZER_PRIORITY_STRING

@@ -2,7 +2,7 @@ from src.HazelcastClient import HazelcastClient
 import unittest
 class GeneralTest(unittest.TestCase):
 	def setUp(self):
-		self.hc = HazelcastClient("localhost")
+		self.hc = HazelcastClient("localhost",5702)
 
 	def test_01_instances(self):
 		print self.hc.instances()

@@ -3,7 +3,7 @@ import unittest
 
 class QueueTest(unittest.TestCase):
 	def setUp(self):
-		self.hc = HazelcastClient("localhost")
+		self.hc = HazelcastClient("localhost",5702)
 		self.queue = self.hc.getQueue("myqueue")
 	def test_01_offer(self):
 		assert self.queue.offer(11) == True , "offer failed"
@@ -12,8 +12,10 @@ class QueueTest(unittest.TestCase):
 	def test_03_entries(self):
 		entries =  self.queue.entries()
 		self.queue.offer(145)
-		assert self.queue.entries() == entries + [145], "retrieving entries failed"
+		entries.append(145)
+		assert self.queue.entries() == entries, "retrieving entries failed"
 		self.queue.remove(145)
+		entries.remove(145)
 		assert sorted(self.queue.entries()) == sorted(entries) , "retrieving entries failed"
 	def test_04_size(self):
 		size = self.queue.size()
