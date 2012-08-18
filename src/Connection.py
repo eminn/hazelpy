@@ -22,7 +22,7 @@ class Connection:
             self.__socket.close()
     
     def authenticate(self, username, password):
-        command = "AUTH " + "0 " + username + " " + password + " \r\n"
+        command = "AUTH " + username + " " + password + " \r\n"
         self.sendCommand(command)
     def sendCommand(self, command):
         self.__socket.sendall(command)
@@ -70,14 +70,14 @@ class Connection:
                     self.readCRLF()
                     return obj
             else:
-                if responseLine == 'OK 0':
+                if responseLine == 'OK 0 0':
                     return True
-                elif len(responseLine.split()) > 2:
-                    if responseLine.split()[2] == "true":
+                elif len(responseLine.split()) > 1:
+                    if responseLine.split()[3] == "true":
                         return True
-                    elif responseLine.split()[2] == "false" or responseLine.split()[2] == "unknown_command": 
+                    elif responseLine.split()[3] == "false" or responseLine.split()[3] == "unknown_command": 
                         return False 
-                    elif responseLine.split()[1] == "ERROR":
+                    elif responseLine.split()[0] == "ERROR":
                         return False
                     else:
                         #print responseLine

@@ -1,6 +1,6 @@
 from TypeSerializer import TypeSerializer
 import cPickle as pickle
-import time,sys
+import time,sys,base64
 SERIALIZER_TYPE_OBJECT = 0
 SERIALIZER_TYPE_BYTE_ARRAY = 1
 SERIALIZER_TYPE_INTEGER = 2
@@ -52,7 +52,6 @@ class DefaultSerializer:
         typeId = inputStream.readByte()
         if typeId == -1:
             raise AttributeError("There is no suitable serializer")
-        print typeId
         return self.typeSerializer[typeId].read(inputStream)
 class ObjectSerializer(TypeSerializer):
     def priority(self):
@@ -62,12 +61,10 @@ class ObjectSerializer(TypeSerializer):
     def getTypeId(self):
         return SERIALIZER_TYPE_OBJECT
     def read(self,inputStream):
-        data = inputStream.readBytes()
-        return pickle.loads(data)
+        data = inputStream.readUTF()
+        return pickle.loads(base64.decodestring(data))
     def write(self,output,obj):
-        data = bytearray()
-        data.extend(pickle.dumps(obj, pickle.HIGHEST_PROTOCOL))
-        output.writeBytes(data);
+        output.writeUTF(base64.encodestring(pickle.dumps(obj, pickle.HIGHEST_PROTOCOL)));
 class ByteArraySerializer(TypeSerializer):
     def priority(self):
         return SERIALIZER_PRIORITY_BYTE_ARRAY

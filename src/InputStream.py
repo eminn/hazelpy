@@ -32,9 +32,9 @@ class InputStream:
             print e
     def readBytes(self):
         size = self.readInt()
-        data = []
+        data = bytearray()
         while size > 0 :
-            data.append(self.readByte())
+            data.extend(self.readByte())
             size -= 1
         return "".join(data)
     def readLong(self):

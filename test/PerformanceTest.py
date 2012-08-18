@@ -5,19 +5,18 @@ class PerformanceTest(unittest.TestCase):
 	putOperationCount = 0
 	getOperationCount = 0
 	removeOperationCount = 0
-	THREAD_COUNT = 64
+	THREAD_COUNT = 1
 	ENTRY_COUNT = 10 * 1000
-	VALUE_SIZE = 100
-	GET_PERCENTAGE = 40
-	PUT_PERCENTAGE = 40
+	VALUE_SIZE = 1
+	GET_PERCENTAGE = 80
+	PUT_PERCENTAGE = 20
 	counter = 1
 	def setUp(self):
 		pass
 	def test_01_performance(self):
-		return
 		class ClientThread(threading.Thread):
 			def run(self):
-				hc = HazelcastClient("localhost",5702)
+				hc = HazelcastClient("localhost",5701)
 				mymap = hc.getMap("default")
 				while True:
 					key = int(random.random() * PerformanceTest.ENTRY_COUNT)
@@ -26,7 +25,7 @@ class PerformanceTest(unittest.TestCase):
 						mymap.get(key)
 						PerformanceTest.getOperationCount +=1
 					elif operation < PerformanceTest.GET_PERCENTAGE + PerformanceTest.PUT_PERCENTAGE:
-						mymap.put(key,b"s" * PerformanceTest.VALUE_SIZE)
+						mymap.put(key,"x" * PerformanceTest.VALUE_SIZE)
 						PerformanceTest.putOperationCount +=1
 					else:
 						mymap.remove(key)

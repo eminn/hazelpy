@@ -11,28 +11,44 @@ class ProxyHelper:
     def check(self, obj):
         if obj == None:
             raise ValueError("Object cannot be null")
-    def doOp(self, command, flag=0, argsCount=0, binary=None, *c_args):
+    def doOp(self, command, argsCount=0, binary=None, *c_args):
         count = "" if argsCount == 0 else ' #' + str(argsCount)
-        command_str = command + ' ' + str(flag) + ' ' + ' '.join(c_args) + count + self.__newline
+        command_str = command  + ' ' + ' '.join(c_args) + count + self.__newline
+       # command_str = []
+      #  command_str.append(command)
+    #    command_str.append(" ")
+   #     command_str.append(" ".join(c_args))
+  #      command_str.append(count)
+ #       command_str.append(self.__newline)
         if argsCount != 0 and binary != None:
-            size = ""
+            size = []
             data = bytearray()
             if isinstance(binary, (types.ListType, types.TupleType)):
                 for item in binary:
                     byte = self.__serializer.toByte(item)
-                    size += str(len(byte)) + " " 
+                    size.append(str(len(byte)))
+                    size.append(" ") 
                     data.extend(byte)
             elif isinstance(binary, types.DictionaryType):
                 for k in binary.keys():
-                    key = list(self.__serializer.toByte(k))
                     value = list(self.__serializer.toByte(binary[k]))
-                    size += str(len(key)) + " " + str(len(value)) + " "
+                    size.append(str(len(key)) )
+                    size.append(" ")
+                    size.append(str(len(value)))
+                    size.append(" ")
                     data.extend(key)
                     data.extend(value)
             else:
                 byte = self.__serializer.toByte(binary)
-                size += str(len(byte)) + " "
+                size.append(str(len(byte)))
+                size.append(" ")
                 data.extend(byte)
-            command_str += size + self.__newline
+            size.pop()
+   #         command_str.append("".join(size))
+  #          command_str.append(self.__newline)
+ #           command_str.append(str(data))
+#            command_str.append(self.__newline)
+            command_str += "".join(size) + self.__newline
             command_str += data + self.__newline
+       # return self.connection.sendCommand("".join(command_str))
         return self.connection.sendCommand(command_str)

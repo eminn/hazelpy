@@ -16,6 +16,5 @@ class SerializationTest(unittest.TestCase):
     def test_03_bytearraySerialization(self):
     	data=self.serializer.toByte(person("emin","demirci"))
     	print data
-    	obj = self.serializer.toObject(str(data))
-    	print obj
-    	print type(obj)
+    	obj = self.serializer.toObject(data)
+        print obj

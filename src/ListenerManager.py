@@ -87,20 +87,20 @@ class ListenerManager:
     def addListenerOp(self, listener, key, includeValue, name):
         if isinstance(listener, MapEntryListener):
             if key is not None:
-                self.__proxyHelper.doOp("MADDLISTENER", 0, 1, key, name, "false" if includeValue == False else "true")
+                self.__proxyHelper.doOp("MADDLISTENER", 1, key, name, "false" if includeValue == False else "true")
             else:
-                self.__proxyHelper.doOp("MADDLISTENER", 0, 0, None, name, "false" if includeValue == False else "true")
+                self.__proxyHelper.doOp("MADDLISTENER", 0, None, name, "false" if includeValue == False else "true")
         elif isinstance(listener, QueueItemListener):
-            self.__proxyHelper.doOp("QADDLISTENER", 0, 0, None, name, "false" if includeValue == False else "true")
+            self.__proxyHelper.doOp("QADDLISTENER", 0, None, name, "false" if includeValue == False else "true")
         self.registerListener(listener)
         self.isRunning = True
         self.run()
     def removeListenerOp(self, listener, key, name):
         if isinstance(listener, MapEntryListener):
             if key is not None:
-                self.__proxyHelper.doOp("MREMOVELISTENER", 0, 1, key, name)
+                self.__proxyHelper.doOp("MREMOVELISTENER", 1, key, name)
             else:
-                self.__proxyHelper.doOp("MREMOVELISTENER", 0, 0, None, name)
+                self.__proxyHelper.doOp("MREMOVELISTENER", 0, None, name)
         self.unregisterListener(listener)
         if len(self.__listeners[listener.TYPE_LISTENER]) < 1:
             self.isRunning = False

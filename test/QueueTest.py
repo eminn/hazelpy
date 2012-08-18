@@ -3,7 +3,7 @@ import unittest
 
 class QueueTest(unittest.TestCase):
 	def setUp(self):
-		self.hc = HazelcastClient("localhost",5702)
+		self.hc = HazelcastClient("localhost",5701)
 		self.queue = self.hc.getQueue("myqueue")
 	def test_01_offer(self):
 		assert self.queue.offer(11) == True , "offer failed"
