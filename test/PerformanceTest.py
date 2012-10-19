@@ -7,7 +7,7 @@ class PerformanceTest(unittest.TestCase):
 	removeOperationCount = 0
 	THREAD_COUNT = 1
 	ENTRY_COUNT = 10 * 1000
-	VALUE_SIZE = 1
+	VALUE_SIZE = 10000
 	GET_PERCENTAGE = 80
 	PUT_PERCENTAGE = 20
 	counter = 1

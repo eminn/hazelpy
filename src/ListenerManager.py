@@ -1,23 +1,27 @@
-from threading import Thread
 from ProxyHelper import ProxyHelper
 from ConnectionManager import ConnectionManager
 from MapEntryListener import MapEntryListener
 from QueueItemListener import QueueItemListener
 from EntryEvent import EntryEvent
 from ItemEvent import ItemEvent
-import socket,time
+import socket
+import time
+import threading
 
-class ListenerManager:
+class ListenerManager(threading.Thread):
     def __new__(cls):
         if not '__instance' in cls.__dict__:
             cls.__instance = object.__new__(cls)
         return cls.__instance 
     
-    def __init__(self,proxyHelper):
+    def __init__(self):
+        super(ListenerManager, self).__init__()
         self.__listeners = {} #eventTypes
+        self.isRunning = False
+
+    def setProxyHelper(self, proxyHelper):
         self.__proxyHelper = proxyHelper
         self.__proxyHelper.connection.setTimeout(None)
-        self.isRunning = False
 
     def run(self):
         while self.isRunning:
@@ -51,30 +55,21 @@ class ListenerManager:
             event = None
             value = None
             oldValue = None
-            responseLine = self.__proxyHelper.connection.readLine()
-            if '#' in responseLine:
-                count = int (responseLine[responseLine.index('#') + 1:])
-                sizeLine = self.__proxyHelper.connection.readLine()
-                sizes = sizeLine.split()
-                if count > 1:
-                    key = self.__proxyHelper.connection.readObject(int(sizes[0]))
-                    value = self.__proxyHelper.connection.readObject(int(sizes[1]))
-                    if count == 3:
-                        oldValue = self.__proxyHelper.connection.readObject(int(sizes[2]))
-                    self.__proxyHelper.connection.readCRLF()
-                else :
-                    key = self.__proxyHelper.connection.readObject(int(sizes[0]))
-                    self.__proxyHelper.connection.readCRLF()
-            responseLine = responseLine.split()
+            response = self.__proxyHelper.connection.readResponse()
+            key = response["binaryData"][0]
+            value = response["binaryData"][1]
+            if len(response["binaryData"]) == 3:
+                oldValue = response["binaryData"][2]
+            responseLine = response["commandLine"].split()
             if responseLine[0] == "EVENT":
-                listenerType = responseLine[2]
+                listenerType = responseLine[1]
                 if listenerType == MapEntryListener.TYPE_LISTENER:
-                    name = responseLine[3]
-                    eventType = responseLine[4]
+                    name = responseLine[2]
+                    eventType = responseLine[3]
                     event = EntryEvent(eventType, listenerType, name, key, value, oldValue)
                 elif listenerType == QueueItemListener.TYPE_LISTENER:
-                    name = responseLine[3]
-                    eventType = responseLine[4]
+                    name = responseLine[2]
+                    eventType = responseLine[3]
                     event = ItemEvent(eventType, listenerType, name, value)
                 elif listenerType == "topic":
                     raise NotImplementedError
@@ -93,16 +88,20 @@ class ListenerManager:
         elif isinstance(listener, QueueItemListener):
             self.__proxyHelper.doOp("QADDLISTENER", 0, None, name, "false" if includeValue == False else "true")
         self.registerListener(listener)
+        print self.__listeners
         self.isRunning = True
-        self.run()
+        self.start()
     def removeListenerOp(self, listener, key, name):
+        print "removeListenerOp"
         if isinstance(listener, MapEntryListener):
             if key is not None:
                 self.__proxyHelper.doOp("MREMOVELISTENER", 1, key, name)
             else:
                 self.__proxyHelper.doOp("MREMOVELISTENER", 0, None, name)
         self.unregisterListener(listener)
+        print self.__listeners
         if len(self.__listeners[listener.TYPE_LISTENER]) < 1:
+            print "stopped listenerManager execution"
             self.isRunning = False
         # do a length check to __listeners and stop the thread if neccessary
     def registerListener(self, listener):

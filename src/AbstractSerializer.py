@@ -8,6 +8,7 @@ class AbstractSerializer:
         self.cs = CustomSerializerAdapter(cs)
         self.output = OutputStream()
         self.input = InputStream()
+    
     def toByte(self,obj):
         if object == None:
             return
@@ -17,6 +18,7 @@ class AbstractSerializer:
         bytes = list(self.output.buf)
         self.output.flush()
         return bytes
+    
     def toObject(self,data):
         self.input.setData(data)
         typeId = -1

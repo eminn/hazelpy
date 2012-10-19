@@ -10,8 +10,9 @@ class Connection:
         self.__password = password
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.__socket.settimeout(10.0)
+        self.__socket.settimeout(4.0)
         self.__serializer = AbstractSerializer(DataSerializer(), DefaultSerializer())
+    
     def connect(self):
         try:
             self.__socket.connect(self.address)
@@ -21,13 +22,20 @@ class Connection:
             print 'Socket connect failed!'
             self.__socket.close()
     
+    
     def authenticate(self, username, password):
         command = "AUTH " + username + " " + password + " \r\n"
         self.sendCommand(command)
+        response = self.readLine()
+        if response == "OK":
+            return True
+        else:
+            return False 
+    
     def sendCommand(self, command):
+        print command
         self.__socket.sendall(command)
-        return self.readResponse()
- 
+    
     def readLine(self):
         line = []
         while True:
@@ -38,6 +46,7 @@ class Connection:
                     break
             line.append(c)
         return "".join(line)
+    
     def readObject(self, size):
         data = bytearray()
         while size > 0:
@@ -45,6 +54,7 @@ class Connection:
             data.extend(chunk) 
             size -= len(chunk)
         return self.__serializer.toObject(data)
+    
     def readCRLF(self):
         while True:
             c = self.__socket.recv(1)
@@ -52,42 +62,26 @@ class Connection:
                 c2 = self.__socket.recv(1)
                 if c2 == '\n':
                     break        
+    
     def readResponse(self):
+        # todo return only binary array.
+        response = {}
         try:
-            responseLine = self.readLine()
-            if '#' in responseLine:
-                count = int (responseLine[responseLine.index('#') + 1:])
-                sizeLine = self.readLine()
-                sizes = sizeLine.split()
-                objects = []
-                if count > 1: # test other for this old : lines>1
-                    for size in sizes:
-                        objects.append(self.readObject(int(size)))
-                    self.readCRLF()
-                    return objects
-                else :
-                    obj = self.readObject(int(sizes[0]))
-                    self.readCRLF()
-                    return obj
-            else:
-                if responseLine == 'OK 0 0':
-                    return True
-                elif len(responseLine.split()) > 1:
-                    if responseLine.split()[3] == "true":
-                        return True
-                    elif responseLine.split()[3] == "false" or responseLine.split()[3] == "unknown_command": 
-                        return False 
-                    elif responseLine.split()[0] == "ERROR":
-                        return False
-                    else:
-                        #print responseLine
-                        return int(responseLine.split()[2])
-                else:
-                    return responseLine
+            response["commandLine"] = self.readLine()
+            if '#' in response["commandLine"]:
+                response["sizeLine"] = self.readLine()
+                response["binaryData"] = []
+                for size in response["sizeLine"].split():
+                    response["binaryData"].append(self.readObject(int(size)))
+                self.readCRLF()
+            print response
+            return response
         except (socket.error, socket.timeout) as e:
             print "error while reading from socket !!!" , e
-
+        return 'NULL'
+    
     def setTimeout(self,timeout):
         self.__socket.settimeout(timeout)
+    
     def close(self):
         self.__socket.shutdown(socket.SHUT_RDWR)
