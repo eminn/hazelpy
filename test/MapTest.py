@@ -1,5 +1,5 @@
-from src.HazelcastClient import HazelcastClient
-from src.MapEntryListener import MapEntryListener
+from hazelpy.HazelcastClient import HazelcastClient
+from hazelpy.MapEntryListener import MapEntryListener
 import unittest,threading,time
 
 class MapTest(unittest.TestCase):
