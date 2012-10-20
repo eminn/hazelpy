@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*- 
 from src.HazelcastClient import HazelcastClient
 from src.MapEntryListener import MapEntryListener
 import unittest,threading,time
@@ -106,19 +107,23 @@ class MapTest(unittest.TestCase):
         self.map.put("tryLock", "someValue")
         assert self.map.tryLock("tryLock",5) == True , "tryLock failed"
         assert self.map.isKeyLocked("tryLock") == True, "tryLock failed"
-
-    def test_22_putIfAbsent(self):
+        
+    def test_22_utfPut(self):
+        self.map.put("ıİöÖçÇşŞğĞ", "ıİöÖçÇşŞğĞ")
+        assert self.map.get("ıİöÖçÇşŞğĞ") == "ıİöÖçÇşŞğĞ" , "putUTF failed"
+    
+    def test_23_putIfAbsent(self):
         self.map.putIfAbsent("putIfAbsent","someValue")
         assert self.map.get("putIfAbsent") == "someValue", "putIfAbsent failed"
 
-    def test_23_lockMap(self):
+    def test_24_lockMap(self):
         self.map.put("lockMap","someValue")
         assert self.map.lockMap(5) == True ,"lockMap failed"
 
-    def test_24_flush(self):
+    def test_25_flush(self):
         assert self.map.flush() == True, "flushing failed"
     
-    def test_25_addListener(self):
+    def test_26_addListener(self):
         return
         listenedMapName = "listenerTest1"
         class MapListener(MapEntryListener):
@@ -160,7 +165,6 @@ class MapTest(unittest.TestCase):
         self.hc.getMap(listenedMapName).put(1,1)
         self.hc.getMap(listenedMapName).evict(1)
         mymap.removeListener(listener)
-
 
     def tearDown(self):
     	self.hc.close()
