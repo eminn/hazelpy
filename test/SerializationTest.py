@@ -1,7 +1,7 @@
 import unittest
-from src.DefaultSerializer import DefaultSerializer
-from src.AbstractSerializer import AbstractSerializer
-from src.DataSerializer import DataSerializer
+from hazelpy.DefaultSerializer import DefaultSerializer
+from hazelpy.AbstractSerializer import AbstractSerializer
+from hazelpy.DataSerializer import DataSerializer
 class person:
 	def __init__(self,name,surname):
 		self.name = name
