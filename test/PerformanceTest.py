@@ -1,4 +1,4 @@
-from src.HazelcastClient import HazelcastClient
+from hazelpy.HazelcastClient import HazelcastClient
 import unittest,threading,random,time
 class PerformanceTest(unittest.TestCase):
 	lock  = threading.Lock()	
