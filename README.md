@@ -1,6 +1,6 @@
-**This project is under development and it's not ready for production. Also Hazelcast team does not introduced client protocol with official release**
+**This project is under development and it's not ready for production.**
 
-hazelpy is a python client for hazelcast.It was compatible with the text client protocol which is introduced with hazelcast 2.2 . It supports only Map interface for now. other data structures will be added as soon as possible.
+hazelpy is a python client for hazelcast.
 
 **Using hazelcast python client**
 
